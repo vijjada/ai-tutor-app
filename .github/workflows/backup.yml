@@ -2,26 +2,29 @@ name: Nightly Supabase Backup
 
 on:
   schedule:
-    - cron: '0 2 * * *'   # runs daily at 2 AM UTC
-  workflow_dispatch:        # adds a manual "Run workflow" button
+    - cron: '0 2 * * *'
+  workflow_dispatch:
 
 jobs:
   backup:
     runs-on: ubuntu-latest
+
     steps:
       - name: Dump Supabase database
         env:
           SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
         run: |
-          sudo apt-get install -y postgresql-client
-          pg_dump "$SUPABASE_DB_URL" > backup.sql
+          docker run --rm \
+            -e SUPABASE_DB_URL="$SUPABASE_DB_URL" \
+            postgres:17 \
+            pg_dump "$SUPABASE_DB_URL" > backup.sql
           gzip backup.sql
 
       - name: Push backup to private repo
         env:
           BACKUP_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
         run: |
-          git clone https://x-access-token:${BACKUP_TOKEN}@github.com/YOUR_USERNAME/ai-tutor-backups.git backup-repo
+          git clone https://x-access-token:${BACKUP_TOKEN}@github.com/vijjada/ai-tutor-backups.git backup-repo
           cp backup.sql.gz backup-repo/backup-$(date +%F).sql.gz
           cd backup-repo
           git config user.email "bot@yourapp.com"

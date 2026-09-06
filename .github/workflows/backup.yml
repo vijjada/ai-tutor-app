@@ -24,7 +24,7 @@ jobs:
         env:
           BACKUP_TOKEN: ${{ secrets.BACKUP_REPO_TOKEN }}
         run: |
-          git clone https://x-access-token:${BACKUP_TOKEN}@github.com/vijjada/ai-tutor-backups.git backup-repo
+          git clone https://x-access-token:${BACKUP_TOKEN}@github.com/vijjada/-ai-tutor-backups.git backup-repo
           cp backup.sql.gz backup-repo/backup-$(date +%F).sql.gz
           cd backup-repo
           git config user.email "bot@yourapp.com"
